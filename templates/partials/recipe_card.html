@@ -1,0 +1,154 @@
+<!-- FILE: templates/partials/recipe_card.html (Final, Corrected & Robust Version) -->
+
+{# 
+  This template handles two states:
+  1. is_new = True: Recipe from AI. Form POSTS to create and loads the cookbook list.
+  2. is_new = False: Recipe from DB. Form PUTS to update and reloads itself with a "Saved!" message.
+#}
+
+{% if is_new %}
+  <!-- For a new recipe, POST to the collection and replace the main content with the cookbook list. -->
+  <form 
+    class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+    method="post"
+    action="/recipes"
+    hx-post="/recipes"
+    hx-target="#output-container"
+    hx-indicator="#spinner"
+  >
+{% else %}
+  <!-- 
+    *** THIS IS THE FIX ***
+    - `hx-target="this"`: Tells HTMX to target the form element itself.
+    - `hx-swap="outerHTML"`: Tells HTMX to replace the entire form with the response.
+    - The result is a seamless self-update without any page navigation.
+  -->
+  <form 
+    class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+    method="post"
+    action="/recipes/{{ recipe.id }}" {# Fallback for browser submission #}
+    hx-put="/recipes/{{ recipe.id }}"  {# HTMX will use this #}
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-indicator="#spinner"
+  >
+{% endif %}
+  <!-- CARD HEADER: Recipe Name & Story -->
+  <div class="p-6 space-y-4">
+    <input 
+      type="text" 
+      id="recipe-name" 
+      name="recipe_name" 
+      value="{% if is_new %}{{ recipe['recipe_name'] or '' }}{% else %}{{ recipe.recipe_name or '' }}{% endif %}"
+      class="text-2xl font-bold text-gray-800 w-full border-none focus:ring-2 focus:ring-indigo-200 rounded-md p-2 -ml-2"
+      placeholder="Give your recipe a name..."
+    >
+    <div>
+      <label for="recipe-provenance" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Story / Origin</label>
+      <textarea 
+        id="recipe-provenance" 
+        name="provenance"
+        rows="3"
+        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        placeholder="e.g., A recipe passed down through generations..."
+      >{% if is_new %}{{ recipe['provenance'] or '' }}{% else %}{{ recipe.provenance or '' }}{% endif %}</textarea>
+    </div>
+  </div>
+
+  <!-- CARD BODY: Ingredients & Notes -->
+  <div class="bg-gray-50/75 p-6 space-y-6 border-t border-b border-gray-200">
+    <div class="space-y-3">
+      <h3 class="text-lg font-semibold text-gray-900 tracking-tight">Ingredients</h3>
+      <ul id="ingredient-list" class="space-y-2">
+        {% set items_list = recipe['items'] if is_new else recipe.items %}
+        {% for item in items_list %}
+        <li class="flex items-center space-x-2">
+          <input type="text" name="item_quantity" value="{{ item.quantity or item['quantity'] }}" placeholder="Qty" class="w-20 rounded-md border-gray-300 text-center shadow-sm">
+          <input type="text" name="item_unit" value="{{ item.unit or item['unit'] }}" placeholder="Unit" class="w-24 rounded-md border-gray-300 shadow-sm">
+          <input type="text" name="item_name" value="{{ item.itemName or item['itemName'] }}" placeholder="Ingredient Name" class="flex-grow rounded-md border-gray-300 shadow-sm">
+          <button type="button" onclick="this.closest('li').remove()" class="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors">
+            <span class="font-bold text-xl">&times;</span>
+          </button>
+        </li>
+        {% endfor %}
+      </ul>
+      <button type="button" onclick="addListItem('ingredient-template', 'ingredient-list')" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 pt-1">
+        + Add Ingredient
+      </button>
+    </div>
+    <div class="space-y-3">
+      <h3 class="text-lg font-semibold text-gray-900 tracking-tight">Chef's Notes</h3>
+      <ul id="notes-list" class="space-y-2">
+        {% set notes_list = recipe['chef_notes'] if is_new else recipe.chef_notes %}
+        {% for note in notes_list %}
+        <li class="flex items-center space-x-2">
+          <input type="text" name="chef_note" value="{{ note }}" placeholder="e.g., Serve with a side of crusty bread" class="flex-grow rounded-md border-gray-300 shadow-sm">
+           <button type="button" onclick="this.closest('li').remove()" class="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors">
+            <span class="font-bold text-xl">&times;</span>
+          </button>
+        </li>
+        {% endfor %}
+      </ul>
+      <button type="button" onclick="addListItem('note-template', 'notes-list')" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 pt-1">
+        + Add Note
+      </button>
+    </div>
+  </div>
+
+  <!-- CARD FOOTER: Actions -->
+  <div class="p-4 flex justify-end items-center space-x-4">
+    <div id="spinner" class="htmx-indicator">
+      <p class="text-sm text-gray-500">Saving...</p>
+    </div>
+    
+    {# This is the main button logic block #}
+    {% if is_new %}
+      <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all transform hover:scale-105">
+        Save to Cookbook
+      </button>
+    {% else %}
+      {# *** CORRECTION: The logic for the "Save Changes" vs "Saved!" button *** #}
+      {% if updated %}
+        <button class="bg-green-500 text-white font-bold py-2 px-6 rounded-lg shadow-md" disabled>
+          Saved!
+        </button>
+      {% else %}
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all transform hover:scale-105">
+          Save Changes
+        </button>
+      {% endif %}
+    {% endif %}
+  </div>
+</form>
+
+<!-- Templates for dynamically adding new list items -->
+<template id="ingredient-template">
+  <li class="flex items-center space-x-2">
+    <input type="text" name="item_quantity" placeholder="Qty" class="w-20 rounded-md border-gray-300 text-center shadow-sm">
+    <input type="text" name="item_unit" placeholder="Unit" class="w-24 rounded-md border-gray-300 shadow-sm">
+    <input type="text" name="item_name" placeholder="Ingredient Name" class="flex-grow rounded-md border-gray-300 shadow-sm">
+    <button type="button" onclick="this.closest('li').remove()" class="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors">
+      <span class="font-bold text-xl">&times;</span>
+    </button>
+  </li>
+</template>
+<template id="note-template">
+  <li class="flex items-center space-x-2">
+    <input type="text" name="chef_note" placeholder="New note..." class="flex-grow rounded-md border-gray-300 shadow-sm">
+    <button type="button" onclick="this.closest('li').remove()" class="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors">
+      <span class="font-bold text-xl">&times;</span>
+    </button>
+  </li>
+</template>
+
+<!-- Script to handle the 'Add' buttons -->
+<script>
+  function addListItem(templateId, listId) {
+    const template = document.getElementById(templateId);
+    const list = document.getElementById(listId);
+    if (template && list) {
+      const clone = template.content.cloneNode(true);
+      list.appendChild(clone);
+    }
+  }
+</script>

@@ -1,0 +1,96 @@
+<!-- FILE: templates/ingredients.html (The Corrected and Final Version) -->
+
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingredient List - The Culinary Companion</title>
+    
+    <link href="/static/css/style.css" rel="stylesheet">
+    <!-- No HTMX needed on this page as it's just for display -->
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">The Culinary Companion</h1>
+            <p class="text-lg text-gray-600 mt-2">Your AI-Powered Recipe Assistant</p>
+        </header>
+
+        <!-- 
+          *** THIS IS THE NEW SECTION ***
+          - The main control buttons provide consistent navigation.
+          - "Start Talking" links back to the homepage (`/`).
+          - "Cookbook" links to the cookbook page.
+          - "Ingredients" is styled differently to show it's the active page.
+        -->
+        <div class="flex justify-center space-x-4 p-4 bg-white rounded-lg shadow-md mb-8">
+            <a 
+                href="/"
+                class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105"
+            >
+                Start Talking
+            </a>
+            <a 
+                href="/cookbook"
+                class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105"
+            >
+                Cookbook
+            </a>
+            <a 
+                href="/ingredients"
+                class="bg-teal-700 text-white font-bold py-3 px-6 rounded-lg ring-2 ring-offset-2 ring-teal-500 cursor-default"
+            >
+                Ingredients
+            </a>
+        </div>
+
+        <main class="bg-white p-6 sm:p-8 rounded-lg shadow-md">
+            <div class="space-y-6">
+                <h1 class="text-3xl font-bold text-gray-800 border-b pb-3">Shopping List</h1>
+                <p class="text-gray-600">A complete shopping list with total quantities for every ingredient across all your recipes.</p>
+                
+                {% if ingredients %}
+                <div class="overflow-x-auto border rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingredient</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Quantity Needed</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for name, units_dict in ingredients %}
+                            <tr class="odd:bg-white even:bg-gray-50/50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 capitalize">{{ name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    {% for unit, total in units_dict.items() %}
+                                        <span class="font-bold">{{ total }}</span>
+                                        <span class="text-gray-500">{{ unit }}</span>
+                                        {% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-10 px-4 bg-gray-50 rounded-lg border-2 border-dashed">
+                    <h3 class="text-lg font-medium text-gray-700">No Ingredients Found</h3>
+                    <p class="text-gray-500 mt-1">Your cookbook is empty. Start by dictating a new recipe!</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+
+        <footer class="text-center mt-8 text-sm text-gray-400">
+            <p>&copy; 2025 The Culinary Companion. All rights reserved.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

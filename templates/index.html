@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Culinary Companion</title>
+    
+    <link href="/static/css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous" defer></script>
+    <script src="/static/js/app.js" defer></script>
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">The Culinary Companion</h1>
+            <p class="text-lg text-gray-600 mt-2">Your AI-Powered Recipe Assistant</p>
+        </header>
+
+        <!-- 
+            *** THIS IS THE CHANGE ***
+            The old block of buttons has been replaced by this single include statement.
+        -->
+        {% include 'partials/navigation.html' %}
+
+        <main id="output-container" class="bg-white p-6 sm:p-8 rounded-lg shadow-md min-h-[20rem]">
+            
+            {% if initial_partial %}
+                {% include initial_partial %}
+            {% else %}
+                <div class="text-center py-10">
+                    <p class="text-gray-500">Click "Cookbook" to see your saved recipes, or "Start Talking" to create a new one.</p>
+                </div>
+            {% endif %}
+
+        </main>
+
+        <footer class="text-center mt-8 text-sm text-gray-400">
+            <p>&copy; 2025 The Culinary Companion. All rights reserved.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.body.addEventListener('htmx:afterSwap', function(event) {
+            if (event.detail.target.id === 'output-container') {
+                console.log('HTMX afterSwap event on index.html. Processing new content.');
+                htmx.process(event.detail.elt);
+            }
+        });
+    </script>
+
+</body>
+</html>

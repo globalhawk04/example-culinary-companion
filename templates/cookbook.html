@@ -1,0 +1,73 @@
+<!-- FILE: templates/cookbook.html (The Corrected and Final Version) -->
+
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cookbook - The Culinary Companion</title>
+    
+    <link href="/static/css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous" defer></script>
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">The Culinary Companion</h1>
+            <p class="text-lg text-gray-600 mt-2">Your AI-Powered Recipe Assistant</p>
+        </header>
+
+        <!-- 
+          *** THIS IS THE NEW SECTION ***
+          - We've added the main control buttons, just like on the index page.
+          - "Start Talking" is now a link back to the homepage (`/`).
+          - "Cookbook" is styled differently to show it's the active page.
+          - "Ingredients" is a standard link to the ingredients page.
+        -->
+        <div class="flex justify-center space-x-4 p-4 bg-white rounded-lg shadow-md mb-8">
+            <a 
+                href="/"
+                class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105"
+            >
+                Start Talking
+            </a>
+            <a 
+                href="/cookbook"
+                class="bg-purple-700 text-white font-bold py-3 px-6 rounded-lg ring-2 ring-offset-2 ring-purple-500 cursor-default"
+            >
+                Cookbook
+            </a>
+            <a 
+                href="/ingredients"
+                class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105"
+            >
+                Ingredients
+            </a>
+        </div>
+
+        <main id="output-container" class="bg-white p-6 sm:p-8 rounded-lg shadow-md min-h-[20rem]">
+            {# 
+              This remains unchanged. We simply include the cookbook list partial.
+            #}
+            {% include 'partials/cookbook_list.html' %}
+        </main>
+
+        <footer class="text-center mt-8 text-sm text-gray-400">
+            <p>&copy; 2025 The Culinary Companion. All rights reserved.</p>
+        </footer>
+
+    </div>
+
+    <!-- This script is still crucial for the "View/Edit -> Save" flow to work seamlessly -->
+    <script>
+        document.body.addEventListener('htmx:afterSwap', function(event) {
+            if (event.detail.target.id === 'output-container') {
+                htmx.process(event.detail.elt);
+            }
+        });
+    </script>
+
+</body>
+</html>

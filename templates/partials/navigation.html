@@ -1,0 +1,47 @@
+<div class="flex justify-center space-x-4 p-4 bg-white rounded-lg shadow-md mb-8">
+    
+    <!-- 
+        *** THIS IS THE FIX ***
+        - If we are on the 'home' page, render the actual <button> with the id="recordButton" 
+          that our JavaScript needs to start recording.
+        - Otherwise, render a normal <a> link to get back to the home page.
+    -->
+    {% if active_page == 'home' %}
+        <button 
+            id="recordButton" 
+            class="bg-green-500 text-white font-bold py-3 px-6 rounded-lg ring-2 ring-offset-2 ring-green-500 cursor-default"
+        >
+            Start Talking
+        </button>
+    {% else %}
+        <a 
+            href="/"
+            class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105"
+        >
+            Start Talking
+        </a>
+    {% endif %}
+    
+    <!-- Cookbook Button (This logic remains the same) -->
+    <a href="/cookbook" class="text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105
+        {% if active_page == 'cookbook' %}
+            bg-purple-700 ring-2 ring-offset-2 ring-purple-500 cursor-default
+        {% else %}
+            bg-purple-500 hover:bg-purple-600
+        {% endif %}
+    ">
+        Cookbook
+    </a>
+    
+    <!-- Ingredients Button (This logic remains the same) -->
+    <a href="/ingredients" class="text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105
+        {% if active_page == 'ingredients' %}
+            bg-teal-700 ring-2 ring-offset-2 ring-teal-500 cursor-default
+        {% else %}
+            bg-teal-500 hover:bg-teal-600
+        {% endif %}
+    ">
+        Ingredients
+    </a>
+
+</div>

@@ -1,0 +1,20 @@
+/* FILE: static/css/tailwind.css (This is your new source file) */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  Your Custom CSS Goes Here:
+  When the body has the 'is-recording' class, we update the UI declaratively.
+*/
+
+body.is-recording #recordButton {
+  @apply bg-red-500 hover:bg-red-600;
+}
+
+body.is-recording #cookbookButton,
+body.is-recording a#cookbookButton { /* Target the `a` tag specifically */
+  /* This makes the button look disabled and prevents clicks. */
+  @apply opacity-50 cursor-not-allowed pointer-events-none;
+}
